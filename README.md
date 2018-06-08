@@ -6,6 +6,8 @@ Facade Viewer can be used for viewing facades - it will show first wall defined 
 Usage - simply choose "open" action on toolbar and select folder, facades from which you want to view. Facades list (if they are present in given folder) will be shown in the left part of window, if you click some facade file - it's image and markup will be shown in the right part. 
 Use "refresh" button to update list if you added/removed files in it.
 
+![Facade viewer](https://32kda.github.io/com.onpositive.facadetools/viewer1.png "Facade viewer")
+
 ## Facade marker
 Facade Marker was created for simplifying creation of facade markup, which automatically calculates image S-T coordinates and then copies them to clipboard.
 
