@@ -1,12 +1,21 @@
 # com.onpositive.facadetools
 X-Plane facade tools project contains two small Java-based tools I've created for more convenience in creating and viewing X-Plane facades
 
+## Prerequisites
+You'll need at least Java 8 JRE or JDK to use these programs. 
+
+You can get JRE e.g. [here](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html "")  
+
+See section "JAR Files as Applications" [here](https://docs.oracle.com/javase/tutorial/deployment/jar/run.html "") on how to launch executable jar file. 
+
 ## Facade viewer
 Facade Viewer can be used for viewing facades - it will show first wall defined in facade description and markup lines for it, dividing it into regions.
 Usage - simply choose "open" action on toolbar and select folder, facades from which you want to view. Facades list (if they are present in given folder) will be shown in the left part of window, if you click some facade file - it's image and markup will be shown in the right part. 
 Use "refresh" button to update list if you added/removed files in it.
 
 ![Facade viewer](https://32kda.github.io/com.onpositive.facadetools/viewer1.png "Facade viewer")
+
+[Download](https://32kda.github.io/com.onpositive.facadetools/facadeviewer-0.0.1.jar "facadeviewer-0.0.1.jar") 
 
 ## Facade marker
 Facade Marker was created for simplifying creation of facade markup, which automatically calculates image S-T coordinates and then copies them to clipboard.
@@ -39,5 +48,8 @@ Using same way you can mark horizontal lanes - just use "Mark Horiz", place line
 
 ![Horizontal marking process](https://32kda.github.io/com.onpositive.facadetools/marker2.png "Horizontal marking process")
 
-Read more about facade creation [here](https://developer.x-plane.com/article/facade-creation/#Understanding_S-T_coordinates)
+[Download](https://32kda.github.io/com.onpositive.facadetools/facademarker-0.0.1.jar "facademarker-0.0.1.jar")
+
+Read more about S-T coordinates and facade creation [here](https://developer.x-plane.com/article/facade-creation/#Understanding_S-T_coordinates)
+
  
