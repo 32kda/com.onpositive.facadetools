@@ -20,7 +20,7 @@ Use "refresh" button to update list if you added/removed files in it.
 ## Facade marker
 Facade Marker was created for simplifying creation of facade markup, which automatically calculates image S-T coordinates and then copies them to clipboard.
 
-For example, to make vertical markup for new facade, click "Mark Vertical", place lines on image (in any order, they will be ordered automatically) and click "end mark".
+For example, to make vertical markup for new facade, click "Mark Vertical", place lines on image using left mouse button (in any order, they will be ordered automatically) and click "End Mark". 
 
 ![Vertical marking process](https://32kda.github.io/com.onpositive.facadetools/marker1.png "Vertical marking process")
 
@@ -33,6 +33,7 @@ Smth like following will be copied to clipboard, which you can use in your facad
 `TOP 0.916015625 1.000000000`
 
 Default type constants (TOP, BOTTOM, etc) are generated for markup, change them manually to what you need if necessary.
+You can use Right Mouse Button, if you want to delete previously added line.
 
 Using same way you can mark horizontal lanes - just use "Mark Horiz", place lines you need and choose "End Mark" You'll get smth like following in the clipboard:
 
