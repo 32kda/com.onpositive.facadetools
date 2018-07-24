@@ -268,7 +268,7 @@ public class FacadeMarker extends JFrame {
 			
 		} else if (mode == Mode.VERT_MARK) {
 			Collections.sort(yCoords);
-			int width = currentImage.getWidth(null);
+			int width = currentImage.getHeight(null);
 			List<Double> resList = new ArrayList<Double>();
 			for (Integer coord : yCoords) {
 				resList.add(1.0 - (coord * 1.0 / width));
