@@ -39,21 +39,13 @@ public class FacadesHelper {
 		Collections.sort(hCoordsList);
 		Collections.sort(vCoordsList);
 		Collections.reverse(vCoordsList);
+		
 		if (hCoordsList.size() > 1 && vCoordsList.size() > 1) {
-//			Image commonImg = imageRegistry.get(imgFile.getAbsolutePath());
-//			if (commonImg == null) {
-//				try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(imgFile))) {
-//					ImageData[] data = new ImageLoader().load(input);
-//					commonImg = new Image(Display.getDefault(), data[0]);
-//					imageRegistry.put(imgFile.getAbsolutePath(), commonImg);
-//				} catch (Exception e) {
-//					Activator.log(e);
-//					return null;
-//				} 
-//			}
 			ImageIcon icon = new ImageIcon(imgFile.getAbsolutePath());
 			int width = icon.getIconWidth();
 			int height = icon.getIconHeight();
+			hCoordsList = fixCoordsList(hCoordsList, width);
+			vCoordsList = fixCoordsList(vCoordsList, height);
 			
 			int srcX = (int) Math.round(hCoordsList.get(0) * width);
 			int w = (int) Math.round(hCoordsList.get(hCoordsList.size() - 1) * width - srcX);
@@ -81,5 +73,23 @@ public class FacadesHelper {
 		}
 		return null;
 		
+	}
+
+	private static List<Double> fixCoordsList(List<Double> coordsList, int width) {
+		boolean needReCalc = false;
+		for (Double val : coordsList) {
+			if (Math.round(val) > 1) {
+				needReCalc = true;
+				break;
+			}
+		}
+		if (needReCalc) {
+			List<Double> resList = new ArrayList<Double>();
+			for (Double current : coordsList) {
+				resList.add(current / width);
+			}
+			return resList;
+		}
+		return coordsList;
 	}
 }
