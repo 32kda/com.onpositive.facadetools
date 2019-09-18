@@ -20,9 +20,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
+import javax.swing.Box;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -30,6 +33,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
@@ -39,6 +43,7 @@ import javax.swing.border.TitledBorder;
 
 public class FacadeMarker extends JFrame {
 
+
 	private static final String POINT_LABEL_PREFFIX = "Point:";
 
 	private static enum Mode {
@@ -47,6 +52,7 @@ public class FacadeMarker extends JFrame {
 
 	private static final long serialVersionUID = -5434112452025836315L;
 
+	private static final String ST_MODE = "ST_MODE";
 	private static final String LAST_DIR = "LAST_DIR";
 
 	private List<Integer> xCoords = new ArrayList<>();
@@ -70,6 +76,10 @@ public class FacadeMarker extends JFrame {
 	private JButton endMarkBtn;
 
 	private File selectedFile;
+
+	private JRadioButton stButton;
+
+	private JRadioButton pxButton;
 
 	@SuppressWarnings("serial")
 	public FacadeMarker() {
@@ -184,9 +194,14 @@ public class FacadeMarker extends JFrame {
 					label.repaint();
 				}
 				if (currentImage != null) {
-					double xCoord = 1.0 * e.getX() / currentImage.getWidth(null);
-					double yCoord = 1.0 - (e.getY() * 1.0 / currentImage.getHeight(null));
-					coordsLabel.setText(POINT_LABEL_PREFFIX + String.format("(%1.6f, %2.6f)", xCoord, yCoord));
+					if (stButton.isSelected()) {
+						double xCoord = 1.0 * e.getX() / currentImage.getWidth(null);
+						double yCoord = 1.0 - (e.getY() * 1.0 / currentImage.getHeight(null));
+						coordsLabel.setText(POINT_LABEL_PREFFIX + String.format(Locale.ROOT,"(%1.6f, %2.6f)", xCoord, yCoord));
+					} else {
+						coordsLabel.setText(POINT_LABEL_PREFFIX + String.format(Locale.ROOT,"(%d, %d)", e.getX(), e.getY()));
+					}
+						
 				}
 			}
 
@@ -204,6 +219,22 @@ public class FacadeMarker extends JFrame {
 		panel.setLayout(new GridLayout(1, 4));
 		panel.setBorder(new TitledBorder("Click a Button to Perform the Associated Operation..."));
 
+		Box btnBox = Box.createHorizontalBox();
+		btnBox.add(new JLabel("Mode:"));
+		stButton = new JRadioButton("S-T");
+		pxButton = new JRadioButton("Pixels");
+		ButtonGroup buttonGroup = new ButtonGroup();
+		buttonGroup.add(stButton);
+		buttonGroup.add(pxButton);
+		btnBox.add(stButton);
+		btnBox.add(pxButton);
+		panel.add(btnBox);
+		
+		Preferences prefs = Preferences.userNodeForPackage(this.getClass());
+		boolean stMode = prefs.getBoolean(ST_MODE, true);
+		stButton.setSelected(stMode);
+		pxButton.setSelected(!stMode);
+		
 		markHorizontalBtn = new JButton("Mark Horiz");
 		markHorizontalBtn.addActionListener(e -> startMarkHorizontal());
 		panel.add(markHorizontalBtn);
@@ -235,14 +266,12 @@ public class FacadeMarker extends JFrame {
 	}
 
 	private void endMark() {
+		Preferences prefs = Preferences.userNodeForPackage(this.getClass());
+		prefs.putBoolean(ST_MODE, stButton.isSelected());
 		if (mode == Mode.HORIZ_MARK) {
 			Collections.sort(xCoords);
 			int width = currentImage.getWidth(null);
-			List<Double> resList = new ArrayList<Double>();
-			for (Integer coord : xCoords) {
-				resList.add(coord * 1.0 / width);
-			}
-			if (resList.size() < 2) {
+			if (xCoords.size() < 2) {
 				int result = JOptionPane.showConfirmDialog(this,"Can't generate coords set, need at least 2 values specified. Do you want to continue marking?", "Can't finish action", JOptionPane.YES_NO_OPTION);
 				if (result == JOptionPane.YES_OPTION) {
 					return;
@@ -253,27 +282,23 @@ public class FacadeMarker extends JFrame {
 					return;
 				}
 			}
-			StringBuilder builder = new StringBuilder();
-			for (int i = 1; i < resList.size(); i++) {
-				builder.append(getHorizCoordsKeyword(i, resList.size()));
-				builder.append(' ');
-				builder.append(String.format("%.6f", resList.get(i-1)));
-				builder.append(' ');
-				builder.append(String.format("%.6f", resList.get(i)));
-				builder.append('\n');
+			List<Number> resList = new ArrayList<Number>();
+			if (stButton.isSelected()) {
+				for (Integer coord : xCoords) {
+					resList.add(coord * 1.0 / width);
+				}
+			} else {
+				resList.addAll(xCoords);
 			}
-			StringSelection stringSelection = new StringSelection(builder.toString());
+			String markings = getHorizMarkings(resList);
+			StringSelection stringSelection = new StringSelection(markings);
 			Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 			clipboard.setContents(stringSelection, null);
 			
 		} else if (mode == Mode.VERT_MARK) {
 			Collections.sort(yCoords);
-			int width = currentImage.getHeight(null);
-			List<Double> resList = new ArrayList<Double>();
-			for (Integer coord : yCoords) {
-				resList.add(1.0 - (coord * 1.0 / width));
-			}
-			if (resList.size() < 2) {
+			int height = currentImage.getHeight(null);
+			if (yCoords.size() < 2) {
 				int result = JOptionPane.showConfirmDialog(this,"Can't generate coords set, need at least 2 values specified. Do you want to continue marking?", "Can't finish action", JOptionPane.YES_NO_OPTION);
 				if (result == JOptionPane.YES_OPTION) {
 					return;
@@ -284,17 +309,19 @@ public class FacadeMarker extends JFrame {
 					return;
 				}
 			}
-			Collections.reverse(resList);
-			StringBuilder builder = new StringBuilder();
-			for (int i = 1; i < resList.size(); i++) {
-				builder.append(getVerticalCoordsKeyword(i, resList.size()));
-				builder.append(' ');
-				builder.append(String.format("%.9f", resList.get(i-1)));
-				builder.append(' ');
-				builder.append(String.format("%.9f", resList.get(i)));
-				builder.append('\n');
+			List<Number> resList = new ArrayList<Number>();
+			if (stButton.isSelected()) {
+				for (Integer coord : yCoords) {
+					resList.add(1.0 - (coord * 1.0 / height));
+				}
+			} else {
+				for (Integer coord : yCoords) {
+					resList.add(height - coord);
+				}
 			}
-			StringSelection stringSelection = new StringSelection(builder.toString());
+			Collections.reverse(resList);
+			String markings= getVertMarkings(resList);
+			StringSelection stringSelection = new StringSelection(markings);
 			Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 			clipboard.setContents(stringSelection, null);
 			
@@ -308,6 +335,39 @@ public class FacadeMarker extends JFrame {
 //		
 //		int srcY = (int) Math.round((1.0 - vCoordsList.get(0)) * bounds.height);
 //		int h = (int) Math.round((1.0 - vCoordsList.get(vCoordsList.size() - 1)) * bounds.height - srcY);
+	}
+
+	protected String getVertMarkings(List<Number> resList) {
+		StringBuilder builder = new StringBuilder();
+		for (int i = 1; i < resList.size(); i++) {
+			builder.append(getVerticalCoordsKeyword(i, resList.size()));
+			builder.append(' ');
+			builder.append(formatCoord(resList.get(i-1)));
+			builder.append(' ');
+			builder.append(formatCoord(resList.get(i)));
+			builder.append('\n');
+		}
+		return builder.toString();
+	}
+
+	public String getHorizMarkings(List<Number> resList) {
+		StringBuilder builder = new StringBuilder();
+		for (int i = 1; i < resList.size(); i++) {
+			builder.append(getHorizCoordsKeyword(i, resList.size()));
+			builder.append(' ');
+			builder.append(formatCoord(resList.get(i-1)));
+			builder.append(' ');
+			builder.append(formatCoord(resList.get(i)));
+			builder.append('\n');
+		}
+		return builder.toString();
+	}
+	
+	protected String formatCoord(Number coord) {
+		if (coord instanceof Double)
+			return String.format(Locale.ROOT, "%.6f", coord);
+		else 
+			return coord.toString();
 	}
 
 	protected void clearCoords() {
