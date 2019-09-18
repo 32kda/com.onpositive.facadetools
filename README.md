@@ -49,7 +49,7 @@ Using same way you can mark horizontal lanes - just use "Mark Horiz", place line
 
 ![Horizontal marking process](https://32kda.github.io/com.onpositive.facadetools/marker2.png "Horizontal marking process")
 
-[Download](https://32kda.github.io/com.onpositive.facadetools/facademarker-0.0.1.jar "facademarker-0.0.1.jar")
+[Download](https://32kda.github.io/com.onpositive.facadetools/facademarker-1.1.0.jar "facademarker-1.1.0.jar")
 
 Read more about S-T coordinates and facade creation [here](https://developer.x-plane.com/article/facade-creation/#Understanding_S-T_coordinates)
 
